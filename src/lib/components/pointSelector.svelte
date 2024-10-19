@@ -1,34 +1,21 @@
 <script lang="ts">
 	import { ToggleGroup } from "bits-ui";
-	import { currentRoomUser } from "$lib/stores/currentUser";
+	import { clientUser } from "$lib/stores/users";
+	import PointSelectorOption from "./pointSelectorOption.svelte";
 
 	function updatePointSelection(value: string|undefined){
-		$currentRoomUser.pointSelection = value;
+		$clientUser.pointSelection = value;
 	}
 </script>
  
 <ToggleGroup.Root onValueChange={updatePointSelection} type="single" class="point-selection-list">
-	<ToggleGroup.Item class="point-selection" value="1">1</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="2">2</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="3">3</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="5">5</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="8">8</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="13">13</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="21">21</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="50">50</ToggleGroup.Item>
-	<ToggleGroup.Item class="point-selection" value="100">100</ToggleGroup.Item>
+	<PointSelectorOption value="1">1</PointSelectorOption>
+	<PointSelectorOption value="2">2</PointSelectorOption>
+	<PointSelectorOption value="3">3</PointSelectorOption>
+	<PointSelectorOption value="5">5</PointSelectorOption>
+	<PointSelectorOption value="8">8</PointSelectorOption>
+	<PointSelectorOption value="13">13</PointSelectorOption>
+	<PointSelectorOption value="21">21</PointSelectorOption>
+	<PointSelectorOption value="50">50</PointSelectorOption>
+	<PointSelectorOption value="100">100</PointSelectorOption>
 </ToggleGroup.Root>
-
-<style>
-	:global(.point-selection-list){
-		display: flex;
-	}
-
-	:global(.point-selection[data-state="on"]){
-		background-color: green;
-	}
-
-	:global(.point-selection[data-state="off"]){
-		background-color: red;
-	}
-</style>
