@@ -1,6 +1,6 @@
-export class RoomUser {
-	id: string = '';
-	roomId: string = ''
-	name: string = '';
-	pointSelection: string | undefined | null;
+export type RoomUser = {
+	id: string;
+	roomId: string;
+	displayName: string;
+	pointSelection: number;
 }

@@ -2,28 +2,42 @@ import { error } from '@sveltejs/kit';
 import { createClient } from '@supabase/supabase-js';
 import type { PageServerLoad } from './$types';
 import type { RoomUser } from '$lib/models/roomUser';
+import serviceClient from "$lib/pubSub/pubSubServiceClient"
+import { db } from '$lib/database/client.server';
+import { roomsTable, usersTable } from '$lib/database/schema';
+import { eq } from 'drizzle-orm';
+import type { Room } from '$lib/models/room';
+//import { db} from '$lib/database/client';
+
+// in this file, we should use the provided room id to insert a new user in that room, and then notify the other clients of this user joining
 
 export const load: PageServerLoad = async ({ params }) => {
 
-	const supabase = createClient(
-		'https://hbyhuxppgfoqfehxdxpl.supabase.co',
-		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhieWh1eHBwZ2ZvcWZlaHhkeHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg2MTU4NDIsImV4cCI6MjA0NDE5MTg0Mn0.9O3jp-kXonF7YxJHfmcCXEq-VbThUm9WoUuuycBzuJY'
-	);
+    const newRoomUserId: string = crypto.randomUUID();
+	const roomId: string = params.roomId;
+	const userDisplayName = `User ${newRoomUserId}`;
 
-    let newRoomUserId: string = crypto.randomUUID();
+	const user: RoomUser = {
+		id: newRoomUserId,
+		roomId,
+		pointSelection: 5,
+		displayName: userDisplayName
+	}
 
-	// assuming we haven't already sent back a 500 in response to some other issue, we should also insert the current user into this new room
-	const { error: insertRoomUserError } = await supabase
-		.from('users')
-		.insert<RoomUser>({
-			id: newRoomUserId, // create a new UUID since this is a new user
-			roomId: params.roomId,
-			name: 'TestUser',
-			pointSelection: null
-		});
+	const existingRoomUsers: RoomUser[] = await db.select().from(usersTable).where(eq(usersTable.roomId, roomId)); // before inserting a new user, load the old ones to display
+	const room: Room = (await db.select().from(roomsTable).where(eq(roomsTable.id, roomId)))[0];// there shold only ever be one room with this id, if not we have bigger issues
+	const arePointsRevealed = room.arePointsRevealed;
+	await db.insert(usersTable).values(user);
+	
+	// this client is intended to be used on the server only, primarily for the purpose of setting auth token permissions and generating URLs for the client to use when connecting to pub sub
+	const clientAccessToken = await serviceClient.getClientAccessToken({
+		roles: [`webpubsub.sendToGroup.${roomId}`], // allows user to publish messages to their room, and only their room
+		userId: newRoomUserId, // attach a user id so the client doesn't have to specify one after connecting
+		groups: [roomId], // same here with the group, this is so the client won't have to join one explicitly
+	})
+	// const roomGroupClient = serviceClient.group(roomId)
 
-	// if we experience an error while trying to insert a user *into* our room, we should also return a 500
-	if (insertRoomUserError) throw error(500, 'unable to reach database');
+	const clientAccessUri = clientAccessToken.url;
 
-    return {newRoomUserId}
+    return {roomId, newRoomUserId, userDisplayName, clientAccessUri, existingRoomUsers, arePointsRevealed};
 };

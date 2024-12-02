@@ -1,4 +1,5 @@
-export class Room {
-	id: string = '';
-	arePointsRevealed : boolean = false;
+export type Room = {
+	id: string,
+	arePointsRevealed: boolean,
+	creationDate: Date
 }

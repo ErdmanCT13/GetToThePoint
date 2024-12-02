@@ -3,12 +3,10 @@
 	import { clientUser } from "$lib/stores/users";
 	import PointSelectorOption from "./pointSelectorOption.svelte";
 
-	function updatePointSelection(value: string|undefined){
-		$clientUser.pointSelection = value;
-	}
+	export let onPointSelection: any = () => {}; // no-op
 </script>
  
-<ToggleGroup.Root onValueChange={updatePointSelection} type="single" class="point-selection-list">
+<ToggleGroup.Root onValueChange={onPointSelection} type="single" class="point-selection-list">
 	<PointSelectorOption value="1">1</PointSelectorOption>
 	<PointSelectorOption value="2">2</PointSelectorOption>
 	<PointSelectorOption value="3">3</PointSelectorOption>
