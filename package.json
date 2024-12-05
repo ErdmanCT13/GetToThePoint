@@ -13,11 +13,13 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
-		"@sveltejs/adapter-vercel": "^5.4.5",
+		"@sveltejs/adapter-node": "^5.2.9",
+		"@sveltejs/adapter-vercel": "^5.5.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/better-sqlite3": "^7.6.12",
 		"@types/eslint": "^9.6.0",
+		"@types/pg": "^8.11.10",
 		"autoprefixer": "^10.4.20",
 		"drizzle-kit": "^0.28.1",
 		"eslint": "^9.0.0",
@@ -45,6 +47,7 @@
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.36.4",
 		"events": "^3.3.0",
+		"pg": "^8.13.1",
 		"postgres": "^3.4.4",
 		"ws": "^8.18.0"
 	}

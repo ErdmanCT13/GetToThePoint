@@ -1,12 +1,11 @@
 import { error } from '@sveltejs/kit';
-import { createClient } from '@supabase/supabase-js';
 import type { PageServerLoad } from './$types';
 import type { RoomUser } from '$lib/models/roomUser';
+import type { Room } from '$lib/models/room';
 import serviceClient from "$lib/pubSub/pubSubServiceClient"
 import { db } from '$lib/database/client.server';
 import { roomsTable, usersTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
-import type { Room } from '$lib/models/room';
 //import { db} from '$lib/database/client';
 
 // in this file, we should use the provided room id to insert a new user in that room, and then notify the other clients of this user joining

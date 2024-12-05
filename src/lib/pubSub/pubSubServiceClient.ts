@@ -1,6 +1,7 @@
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import { PUB_SUB_CONNECTION_STRING } from '$env/static/private';
 
 export default new WebPubSubServiceClient(
-    "Endpoint=https://tfex-webpubsub.webpubsub.azure.com;AccessKey=CLuEsmBzrfvCh1JQMDSQHbgAosVCc1Hi1D2aFabx9j20RJSpztGVJQQJ99AKACYeBjFXJ3w3AAAAAWPS9KFH;Version=1.0;", // connection string
+    PUB_SUB_CONNECTION_STRING, // connection string
     "rooms" // hubname
 );

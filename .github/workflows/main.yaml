@@ -2,6 +2,21 @@ name: Gettothepoint production
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  # stored in a Github environment secret
+  # used by the Vercel Terraform provider to authenticate
+  VERCEL_API_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+  # used to access remote tf state
+  ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+  # Azure credentials used by terraform to authenticate az provider
+  ARM_CLIENT_ID:  "${{ secrets.SERVICE_PRINCIPAL_CLIENT_ID }}"
+  ARM_CLIENT_SECRET: "${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }}"
+  ARM_TENANT_ID: "${{ secrets.SERVICE_PRINCIPAL_TENANT_ID }}"
+  ARM_SUBSCRIPTION_ID: "${{ secrets.SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}"
+  RENDER_API_KEY: "${{ secrets.RENDER_API_KEY }}"
+  # RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+  REPO_READ_ACCESS_TOKEN: ${{ secrets.REPO_READ_ACCESS_TOKEN }}
+
+  # COCKROACH_API_KEY: ${{ secrets.COCKROACH_API_KEY }}
 on:
   push:
     branches:
@@ -9,26 +24,21 @@ on:
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: "npm install"
+
+      - name: Create SQLite Database
+        run: npx drizzle-kit push 
 
       - name: Terraform Init
         working-directory: ./infra
         run: terraform init
 
-      - name: Terraform Init
+      - name: Apply Infrastructure
         working-directory: ./infra
-        run: terraform apply
-        
-      - name: Install Vercel CLI
-        run: npm install --global vercel@canary
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: terraform apply -input=false -auto-approve
