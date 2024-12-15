@@ -16,6 +16,14 @@ env:
   # RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
   REPO_READ_ACCESS_TOKEN: ${{ secrets.REPO_READ_ACCESS_TOKEN }}
 
+  # connection string
+  TF_VAR_PUB_SUB_CONNECTION_STRING: ${{ secrets.PUB_SUB_CONNECTION_STRING }}
+  # database credentials
+  TF_VAR_PGHOST: ${{ secrets.PGHOST }}
+  TF_VAR_PGDATABASE: ${{ secrets.PGDATABASE }}
+  TF_VAR_PGUSER: ${{ secrets.PGUSER }}
+  TF_VAR_PGPASSWORD: ${{ secrets.PGPASSWORD }}
+
   # COCKROACH_API_KEY: ${{ secrets.COCKROACH_API_KEY }}
 on:
   push:
@@ -32,7 +40,13 @@ jobs:
       - name: Install Dependencies
         run: "npm install"
 
-      - name: Create SQLite Database
+      # - name: Install Vercel CLI
+      #   run: "npm i -g vercel"
+
+      # - name: Build Project
+      #   run: "vercel build"
+
+      - name: Apply Database Schema
         run: npx drizzle-kit push 
 
       - name: Terraform Init

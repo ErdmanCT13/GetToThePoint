@@ -1,43 +1,43 @@
 import { derived, writable } from 'svelte/store';
 import type { RoomUser } from '$lib/models/roomUser';
 
-let remoteTestUsers: RoomUser[] = [
-	{
-		id: '2',
-		displayName: 'Brian',
-		roomId: "100",
-		pointSelection: 1
-	},
-	{
-		id: '3',
-		displayName: 'Jeb',
-		roomId: "100",
-		pointSelection: 5
-	},
-	{
-		id: '4',
-		displayName: 'Tyler',
-		roomId: "100",
-		pointSelection: 5
-	},
-	{
-		id: '5',
-		displayName: 'Tom',
-		roomId: "100",
-		pointSelection: 5
-	},
-	{
-		id: '5',
-		displayName: 'Tom',
-		roomId: "100",
-		pointSelection: 5
-	}
-];
+// let remoteTestUsers: RoomUser[] = [
+// 	{
+// 		id: '2',
+// 		displayName: 'Brian',
+// 		roomId: "100",
+// 		pointSelection: 1
+// 	},
+// 	{
+// 		id: '3',
+// 		displayName: 'Jeb',
+// 		roomId: "100",
+// 		pointSelection: 5
+// 	},
+// 	{
+// 		id: '4',
+// 		displayName: 'Tyler',
+// 		roomId: "100",
+// 		pointSelection: 5
+// 	},
+// 	{
+// 		id: '5',
+// 		displayName: 'Tom',
+// 		roomId: "100",
+// 		pointSelection: 5
+// 	},
+// 	{
+// 		id: '5',
+// 		displayName: 'Tom',
+// 		roomId: "100",
+// 		pointSelection: 5
+// 	}
+// ];
 
 let currentTestUser: RoomUser = {
-	id: '5',
-	displayName: 'current user',
-	roomId: "100",
+	id: '',
+	displayName: '',
+	roomId: '',
 	pointSelection: 0
 };
 

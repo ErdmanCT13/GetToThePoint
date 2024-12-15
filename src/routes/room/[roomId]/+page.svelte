@@ -12,12 +12,26 @@
 	import { arePointsVisible } from '$lib/stores/points';
 	import { HandleRoomMessage } from '$lib/pubSub/eventHandlers';
 	import { SetupRoomListener as RoomListenerSetup } from '$lib/pubSub/pubSubClient';
+	import { getUserIfCached } from '$lib/helpers/localUserCache';
+	import type { RoomUser } from '$lib/models/roomUser';
 
 	export let data: PageData;
 
 	let roomClient: WebPubSubClient;
 
 	if (browser) {
+
+		// todo: implement display name save and broadcast
+		// to make the user's life a little easier, when they save a name, we'll cach their user state and try to reuse whatever name was saved
+		const cachedUser: RoomUser | null = getUserIfCached();
+		let nameToDisplay: string = data.serverGeneratedDisplayName;
+		if(cachedUser)
+			nameToDisplay = cachedUser.displayName;
+		else
+			nameToDisplay = data.serverGeneratedDisplayName
+		
+		$clientUser.displayName = nameToDisplay
+
 		// note that Vite has issues with this package. Apparently Vite only targets browsers, and therefore cannot make use of NodeJS core modules
 		// the 'events' module is one such much and is used by WebPubSubClient.
 		// fix was to install the 'events' module as a dependency
@@ -100,7 +114,7 @@
 <!-- this will be the starting point for next time. exposing the user id like this means we can update the db -->
 <!-- <div>{data.newRoomUserId} ///// {data.roomId} ////// {data.clientAccessUri}</div> -->
 
-<div class="content">
+<div class="content h-screen bg-black">
 	<div class="controls">
 		<input bind:value={$clientUser.displayName} placeholder="Enter name..." />
 	</div>

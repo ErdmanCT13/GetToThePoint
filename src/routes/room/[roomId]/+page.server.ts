@@ -6,6 +6,7 @@ import serviceClient from "$lib/pubSub/pubSubServiceClient"
 import { db } from '$lib/database/client.server';
 import { roomsTable, usersTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
+import { pickRandomEmojiSequence } from '$lib/helpers/randomEmoji';
 //import { db} from '$lib/database/client';
 
 // in this file, we should use the provided room id to insert a new user in that room, and then notify the other clients of this user joining
@@ -14,13 +15,13 @@ export const load: PageServerLoad = async ({ params }) => {
 
     const newRoomUserId: string = crypto.randomUUID();
 	const roomId: string = params.roomId;
-	const userDisplayName = `User ${newRoomUserId}`;
+	const serverGeneratedDisplayName = pickRandomEmojiSequence(1);
 
 	const user: RoomUser = {
 		id: newRoomUserId,
 		roomId,
 		pointSelection: 0,
-		displayName: userDisplayName
+		displayName: serverGeneratedDisplayName
 	}
 
 	const existingRoomUsers: RoomUser[] = await db.select().from(usersTable).where(eq(usersTable.roomId, roomId)); // before inserting a new user, load the old ones to display
@@ -38,5 +39,5 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const clientAccessUri = clientAccessToken.url;
 
-    return {roomId, newRoomUserId, userDisplayName, clientAccessUri, existingRoomUsers, arePointsRevealed};
+    return {roomId, newRoomUserId, serverGeneratedDisplayName, clientAccessUri, existingRoomUsers, arePointsRevealed};
 };

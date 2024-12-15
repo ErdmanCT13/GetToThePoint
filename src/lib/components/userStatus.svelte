@@ -16,7 +16,11 @@
 	text-white
 	mx-[10px]
 	p-[10px]
-	data-[state=on]:bg-green-600
-	data-[state=off]:bg-red-700">
+	border-[1px]
+	data-[state=on]:border-white
+	data-[state=on]:text-white
+	data-[state=off]:border-gray-700
+	data-[state=off]:text-gray-700"
+	>
 	{`${roomUser.displayName} ${displayValue}`}
 </Toggle.Root>

@@ -1,3 +1,29 @@
+variable "PUB_SUB_CONNECTION_STRING" {
+  type      = string
+  sensitive = true
+}
+
+variable "PGHOST" {
+  type      = string
+  sensitive = true
+}
+
+variable "PGDATABASE" {
+  type      = string
+  sensitive = true
+}
+
+variable "PGUSER" {
+  type      = string
+  sensitive = true
+}
+
+variable "PGPASSWORD" {
+  type      = string
+  sensitive = true
+}
+
+
 # Configure the Azure provider
 terraform {
   required_providers {
@@ -62,53 +88,117 @@ resource "azurerm_web_pubsub" "gettothepoint-pubsub" {
   }
 }
 
-resource "render_project" "my-project" {
-  name = "GetToThePoint"
-  environments = {
-    "production" : {
-      name : "production",
-      protected_status : "unprotected"
-    },
+# resource "render_project" "my-project" {
+#   name = "GetToThePoint"
+#   environments = {
+#     "production" : {
+#       name : "production",
+#       protected_status : "unprotected"
+#     },
+#   }
+# }
+
+# resource "render_web_service" "web" {
+#   name               = "terraform-web-service"
+#   plan               = "starter"
+#   region             = "oregon"
+#   start_command      = "node build/index.js"
+#   pre_deploy_command = "echo 'hello world'"
+
+#   runtime_source = {
+#     native_runtime = {
+#       auto_deploy   = true
+#       branch        = "main"
+#       build_command = "npm install && npm run build && npx run drizzle-kit push"
+#       build_filter = {
+#         paths         = ["src/**"]
+#         ignored_paths = ["tests/**"]
+#       }
+#       repo_url = "https://github.com/ErdmanCT13/GetToThePoint"
+#       runtime  = "node"
+#     }
+#   }
+
+#   # disk = {
+#   #   name       = "some-disk"
+#   #   size_gb    = 1
+#   #   mount_path = "/static"
+#   # }
+
+#   env_vars = {
+#     "PUB_SUB_CONNECTION_STRING" = { value = azurerm_web_pubsub.gettothepoint-pubsub.primary_connection_string },
+#   }
+
+#   notification_override = {
+#     preview_notifications_enabled = "false"
+#     notifications_to_send         = "failure"
+#   }
+
+#   log_stream_override = {
+#     setting = "drop"
+#   }
+# }
+
+
+# A project that is not connected to a git repository.
+# Deployments will need to be created manually through
+# terraform, or via the vercel CLI.
+resource "vercel_project" "gettothepoint_project" {
+  name      = "gettothepoint"
+  framework = "sveltekit"
+}
+
+data "vercel_project_directory" "gettothepoint_project_directory" {
+  path = "../"
+}
+
+# data "vercel_prebuilt_project" "gettothepoint_prebuilt" {
+#   path = "../src"
+# }
+
+resource "vercel_deployment" "gettothepoint_prod_deployment" {
+  project_id  = vercel_project.gettothepoint_project.id
+  files       = data.vercel_project_directory.gettothepoint_project_directory.files
+  path_prefix = "../"
+  
+  production = true
+
+  environment = {
+    PUB_SUB_CONNECTION_STRING = var.PUB_SUB_CONNECTION_STRING
+    PGHOST = var.PGHOST
+    PGDATABASE = var.PGDATABASE
+    PGUSER = var.PGUSER
+    PGPASSWORD = var.PGPASSWORD
   }
 }
 
-resource "render_web_service" "web" {
-  name               = "terraform-web-service"
-  plan               = "starter"
-  region             = "oregon"
-  start_command      = "node build/index.js"
-  pre_deploy_command = "echo 'hello world'"
-
-  runtime_source = {
-    native_runtime = {
-      auto_deploy   = false
-      branch        = "main"
-      build_command = "npm install && npm run build && npx run drizzle-kit push"
-      build_filter = {
-        paths         = ["src/**"]
-        ignored_paths = ["tests/**"]
-      }
-      repo_url = "https://github.com/ErdmanCT13/GetToThePoint"
-      runtime  = "node"
-    }
-  }
-
-  disk = {
-    name       = "some-disk"
-    size_gb    = 1
-    mount_path = "/static"
-  }
-
-  env_vars = {
-    "PUB_SUB_CONNECTION_STRING" = { value = azurerm_web_pubsub.gettothepoint-pubsub.primary_connection_string },
-  }
-
-  notification_override = {
-    preview_notifications_enabled = "false"
-    notifications_to_send         = "failure"
-  }
-
-  log_stream_override = {
-    setting = "drop"
-  }
-}
+# resource "vercel_project_environment_variables" "gettothepoint_prod_variables" {
+#   project_id = vercel_project.gettothepoint_project.id
+#   variables = [
+#     {
+#       key    = "PUB_SUB_CONNECTION_STRING"
+#       value  = var.PUB_SUB_CONNECTION_STRING
+#       target = ["production"]
+#     },
+#     {
+#       key    = "PGHOST"
+#       value  = var.PGHOST
+#       target = ["production"]
+#     },
+#     {
+#       key    = "PGDATABASE"
+#       value  = var.PGDATABASE
+#       target = ["production"]
+#     },
+#         {
+#       key    = "PGUSER"
+#       value  = var.PGUSER
+#       target = ["production"]
+#     },
+#         {
+#       key    = "PGPASSWORD"
+#       value  = var.PGPASSWORD
+#       target = ["production"]
+#     },
+#   ]
+# }
