@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const user: RoomUser = {
 		id: newRoomUserId,
 		roomId,
-		pointSelection: 5,
+		pointSelection: 0,
 		displayName: userDisplayName
 	}
 

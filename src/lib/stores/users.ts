@@ -38,7 +38,7 @@ let currentTestUser: RoomUser = {
 	id: '5',
 	displayName: 'current user',
 	roomId: "100",
-	pointSelection: 1000
+	pointSelection: 0
 };
 
 export const remoteUsers = writable<RoomUser[]>([]);
