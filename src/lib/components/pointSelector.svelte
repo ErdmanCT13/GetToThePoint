@@ -6,7 +6,7 @@
 	export let onPointSelection: any = () => {}; // no-op
 </script>
  
-<ToggleGroup.Root onValueChange={onPointSelection} type="single" class="point-selection-list">
+<ToggleGroup.Root onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-white border-white border-[1px] border-solid">
 	<PointSelectorOption value="1">1</PointSelectorOption>
 	<PointSelectorOption value="2">2</PointSelectorOption>
 	<PointSelectorOption value="3">3</PointSelectorOption>
@@ -16,4 +16,5 @@
 	<PointSelectorOption value="21">21</PointSelectorOption>
 	<PointSelectorOption value="50">50</PointSelectorOption>
 	<PointSelectorOption value="100">100</PointSelectorOption>
+	<PointSelectorOption value="200">100</PointSelectorOption>
 </ToggleGroup.Root>
