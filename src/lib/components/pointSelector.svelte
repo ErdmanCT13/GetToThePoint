@@ -3,15 +3,17 @@
 	import { clientUser } from "$lib/stores/users";
 	import PointSelectorOption from "./pointSelectorOption.svelte";
 
-	export let onPointSelection: any = () => {}; // no-op
+	interface Props {
+		onPointSelection?: any;
+	}
 
-	let selection: string;
+	let { onPointSelection = () => {} }: Props = $props();
 
-	$: $clientUser.pointSelection = Number(selection);
+	// let selection: string = $derived(Number(selection));
 
 </script>
  
-<ToggleGroup.Root bind:value={selection} onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-white border-white border-[1px] border-solid">
+<ToggleGroup.Root onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-white border-white border-[1px] border-solid">
 	<PointSelectorOption value="1">1</PointSelectorOption>
 	<PointSelectorOption value="2">2</PointSelectorOption>
 	<PointSelectorOption value="3">3</PointSelectorOption>

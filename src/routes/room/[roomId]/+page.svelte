@@ -16,7 +16,11 @@
 	import type { RoomUser } from '$lib/models/roomUser';
 	import { get } from 'svelte/store';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	let roomClient: WebPubSubClient;
 
@@ -118,24 +122,24 @@
 			'text'
 		);
 
-		//$clientUser.pointSelection = Number(value);
+		$clientUser.pointSelection = Number(value);
 	}
 
 	$arePointsVisible = data.arePointsRevealed;
 	$remoteUsers = data.existingRoomUsers; // update state with the users that were already in the room before client joined
 
-	$: usersWithPointSelected = $allUsers.filter((user) => user.pointSelection); // filter out the falsy values
-	$: averagePoints =
-		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) /
-		usersWithPointSelected.length; // with initial value to avoid when the array is empty
-	$: roomPointsDisplayValue = $arePointsVisible ? averagePoints : 'hidden';
+	let usersWithPointSelected = $derived($allUsers.filter((user) => user.pointSelection)); // filter out the falsy values
+	let averagePoints =
+		$derived(usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) /
+		usersWithPointSelected.length); // with initial value to avoid when the array is empty
+	let roomPointsDisplayValue = $derived($arePointsVisible ? averagePoints : 'hidden');
 
 	// group the users by their point selection, sort them from largest to smallest
-	$: pointsTally = [...Map.groupBy($allUsers, (user) => user.pointSelection)].sort((a, b) => {
+	let pointsTally = $derived([...Map.groupBy($allUsers, (user) => user.pointSelection)].sort((a, b) => {
 		let [, valueA] = a;
 		let [, valueB] = b;
 		return valueB.length - valueA.length;
-	})
+	}))
 </script>
 
 <!-- this will be the starting point for next time. exposing the user id like this means we can update the db -->
@@ -183,13 +187,13 @@
 
 
 		<button
-			on:click={toggleArePointsVisible}
+			onclick={toggleArePointsVisible}
 			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
 			{arePointsVisible ? "hide" : "show"}
 		</button>
 
 		<button
-			on:click={resetRoomPoints}
+			onclick={resetRoomPoints}
 			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
 			reset
 		</button>

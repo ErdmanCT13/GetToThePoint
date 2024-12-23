@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { ToggleGroup } from "bits-ui";
 
-    export let value;
+    interface Props {
+        value: any;
+        children: any;
+    }
+    
+    let { value }: Props = $props();
 </script>
 
 <ToggleGroup.Item class=

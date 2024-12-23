@@ -2,12 +2,16 @@
 	import type { RoomUser } from "$lib/models/roomUser";
 	import { Toggle } from "bits-ui";
 
-	export let roomUser: RoomUser;
-	export let pointsRevealed: boolean;
-	export let onSelect: any = () => {console.log("NO ON SELECT PROVIDED")};
+	interface Props {
+		roomUser: RoomUser;
+		pointsRevealed: boolean;
+		onSelect?: any;
+	}
 
-	$: arePointsSelectedByUser = !!roomUser.pointSelection; // return the truthy value
-	$: displayValue = arePointsSelectedByUser && pointsRevealed ? roomUser.pointSelection : "..."; 
+	let { roomUser, pointsRevealed, onSelect = () => {console.log("NO ON SELECT PROVIDED")} }: Props = $props();
+
+	let arePointsSelectedByUser = $derived(!!roomUser.pointSelection); // return the truthy value
+	let displayValue = $derived(arePointsSelectedByUser && pointsRevealed ? roomUser.pointSelection : "..."); 
 
 
 </script>
