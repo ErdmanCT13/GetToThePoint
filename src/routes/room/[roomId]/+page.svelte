@@ -78,6 +78,27 @@
 		console.log($arePointsVisible);
 	}
 
+	function resetRoomPoints() {
+		fetch(`/room/${data.roomId}/reset`, {
+			// send a request to the server to update the db
+			method: 'PUT'
+		});
+
+		roomClient.sendToGroup(
+			data.roomId,
+			JSON.stringify({
+				time: Date.now().toString(),
+				roomEvent: 'reset',
+				userId: data.newRoomUserId,
+				roomId: data.roomId,
+				userDisplayName: $clientUser.displayName
+			} as RoomEvent),
+			'text'
+		);
+
+		$clientUser.pointSelection = 0;
+	}
+
 	function updatePointSelection(value: string | undefined) {
 		const newValue: number = value ? Number(value) : 0;
 		fetch(`/room/${data.roomId}/points?value=${newValue}&userId=${data.newRoomUserId}`, {
@@ -97,7 +118,7 @@
 			'text'
 		);
 
-		$clientUser.pointSelection = Number(value);
+		//$clientUser.pointSelection = Number(value);
 	}
 
 	$arePointsVisible = data.arePointsRevealed;
@@ -162,9 +183,15 @@
 
 
 		<button
-		on:click={toggleArePointsVisible}
-		class="h-[50px] w-full bg-black text-white border-white border-[1px]">
-			reveal
+			on:click={toggleArePointsVisible}
+			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
+			{arePointsVisible ? "hide" : "show"}
+		</button>
+
+		<button
+			on:click={resetRoomPoints}
+			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
+			reset
 		</button>
 
 		<!-- point selection -->

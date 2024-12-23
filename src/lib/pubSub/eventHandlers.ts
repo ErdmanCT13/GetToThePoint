@@ -4,8 +4,6 @@ import { remoteUsers } from "$lib/stores/users"
 import { clientUser } from "$lib/stores/users";
 import { arePointsVisible } from "$lib/stores/points";
 
-type AllowedRoomMessageEventTypes = boolean | number | undefined | null
-
 export function HandleRoomMessage(event: RoomEvent<any>): void { // TODO: work about a better way of arranging this so it's typesafe, we shouldn't use any like this
     switch (event.roomEvent) {
         case 'join': // user joins the room

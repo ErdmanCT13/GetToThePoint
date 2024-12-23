@@ -4,9 +4,14 @@
 	import PointSelectorOption from "./pointSelectorOption.svelte";
 
 	export let onPointSelection: any = () => {}; // no-op
+
+	let selection: string;
+
+	$: $clientUser.pointSelection = Number(selection);
+
 </script>
  
-<ToggleGroup.Root onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-white border-white border-[1px] border-solid">
+<ToggleGroup.Root bind:value={selection} onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-white border-white border-[1px] border-solid">
 	<PointSelectorOption value="1">1</PointSelectorOption>
 	<PointSelectorOption value="2">2</PointSelectorOption>
 	<PointSelectorOption value="3">3</PointSelectorOption>
