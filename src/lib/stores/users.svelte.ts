@@ -41,17 +41,25 @@ let currentTestUser: RoomUser = {
 	pointSelection: 0
 };
 
-export const remoteUsers = writable<RoomUser[]>([]);
-export const clientUser = writable<RoomUser>(currentTestUser);
-export const allUsers = derived( // this is probably redundant... // TODO: consider moving away from allUsers derived store
-	[remoteUsers, clientUser],
-	([$remoteUsers, $clientUser]) => {
-		return [$clientUser, ...$remoteUsers];
-	},
-	[currentTestUser].filter((user) => user.pointSelection)
-    //[currentTestUser, ...remoteTestUsers].filter((user) => user.pointSelection)
-);
+//export const remoteUsers = writable<RoomUser[]>([]);
+export const remoteUsers = $state<{value: RoomUser[]}>({value: []});
+export const clientUser = $state({value: currentTestUser});
+// export const allUsers = derived( // this is probably redundant... // TODO: consider moving away from allUsers derived store
+// 	[remoteUsers, clientUser],
+// 	([$remoteUsers, $clientUser]) => {
+// 		return [$clientUser, ...$remoteUsers];
+// 	},
+// 	[currentTestUser].filter((user) => user.pointSelection)
+//     //[currentTestUser, ...remoteTestUsers].filter((user) => user.pointSelection)
+// );
 
+const allUsers = $derived([
+	clientUser.value,
+	...remoteUsers.value
+])
 
+export function getAllUsers(){
+	return allUsers
+}
 
 

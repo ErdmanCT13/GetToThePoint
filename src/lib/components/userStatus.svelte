@@ -19,14 +19,13 @@
 <Toggle.Root onPressedChange={onSelect} disabled={true} pressed={arePointsSelectedByUser && pointsRevealed} class="
 	flex
 	justify-between
-	text-white
 	p-[10px]
-	border-[1px]
 	h-[50px]
-	data-[state=on]:border-white
-	data-[state=on]:text-white
-	data-[state=off]:border-gray-700
-	data-[state=off]:text-gray-700"
+	border-[1px]
+	text-white
+	bg-main-dark
+	data-[state=on]:border-main-light
+	data-[state=off]:border-main-dark"
 	>
 	<div>{roomUser.displayName}</div>
 	<div>{displayValue}</div>

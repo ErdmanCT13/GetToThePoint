@@ -11,10 +11,9 @@
 
 <ToggleGroup.Item class=
     "h-[50px]
-    data-[state=off]:bg-black
-    data-[state=off]:text-white
-    data-[state=on]:bg-white
-    data-[state=on]:text-black"
+    text-white
+    data-[state=off]:bg-main-dark
+    data-[state=on]:bg-main-light"
     value={value}>
     {value}
 </ToggleGroup.Item>

@@ -6,10 +6,10 @@
 	import { browser } from '$app/environment';
 	import PointSelector from '$lib/components/pointSelector.svelte';
 	import UserStatus from '$lib/components/userStatus.svelte';
-	import { allUsers, remoteUsers } from '$lib/stores/users';
-	import { clientUser } from '$lib/stores/users';
+	import { getAllUsers, remoteUsers } from '$lib/stores/users.svelte';
+	import { clientUser } from '$lib/stores/users.svelte';
 	import { Button } from 'bits-ui';
-	import { arePointsVisible } from '$lib/stores/points';
+	import { arePointsVisible, pointsValueString } from '$lib/stores/points.svelte';
 	import { HandleRoomMessage } from '$lib/pubSub/eventHandlers';
 	import { SetupRoomListener as RoomListenerSetup } from '$lib/pubSub/pubSubClient';
 	import { getUserIfCached } from '$lib/helpers/localUserCache';
@@ -23,16 +23,16 @@
 	let { data }: Props = $props();
 
 	let roomClient: WebPubSubClient;
+	let nameToDisplay: string = data.serverGeneratedDisplayName;
 
 	if (browser) {
 		// todo: implement display name save and broadcast
 		// to make the user's life a little easier, when they save a name, we'll cach their user state and try to reuse whatever name was saved
 		const cachedUser: RoomUser | null = getUserIfCached();
-		let nameToDisplay: string = data.serverGeneratedDisplayName;
+
 		if (cachedUser) nameToDisplay = cachedUser.displayName;
 		else nameToDisplay = data.serverGeneratedDisplayName;
-
-		$clientUser.displayName = nameToDisplay;
+		clientUser.value.displayName = nameToDisplay;
 
 		// note that Vite has issues with this package. Apparently Vite only targets browsers, and therefore cannot make use of NodeJS core modules
 		// the 'events' module is one such much and is used by WebPubSubClient.
@@ -59,7 +59,7 @@
 	}
 
 	function toggleArePointsVisible() {
-		const newValue = !$arePointsVisible; // invert the current value
+		const newValue = !arePointsVisible.value; // invert the current value
 		fetch(`/room/${data.roomId}/reveal?value=${newValue}`, {
 			// send a request to the server to update the db
 			method: 'PUT'
@@ -73,13 +73,13 @@
 				userId: data.newRoomUserId,
 				roomId: data.roomId,
 				value: newValue,
-				userDisplayName: $clientUser.displayName
+				userDisplayName: nameToDisplay
 			} as RoomEvent<boolean>),
 			'text'
 		);
 
-		$arePointsVisible = newValue;
-		console.log($arePointsVisible);
+		arePointsVisible.value = newValue;
+		console.log(arePointsVisible);
 	}
 
 	function resetRoomPoints() {
@@ -95,12 +95,17 @@
 				roomEvent: 'reset',
 				userId: data.newRoomUserId,
 				roomId: data.roomId,
-				userDisplayName: $clientUser.displayName
+				userDisplayName: nameToDisplay
 			} as RoomEvent),
 			'text'
 		);
 
-		$clientUser.pointSelection = 0;
+		// reset all users points
+		clientUser.value.pointSelection = 0;
+		// reset the user input and hide points
+		arePointsVisible.value = false
+		pointsValueString.value = "0"
+		remoteUsers.value = remoteUsers.value.map<RoomUser>(remoteUser => ({...remoteUser, pointSelection: 0}))
 	}
 
 	function updatePointSelection(value: string | undefined) {
@@ -117,25 +122,25 @@
 				userId: data.newRoomUserId,
 				roomId: data.roomId,
 				value: newValue,
-				userDisplayName: `User ${data.newRoomUserId}`
+				userDisplayName: nameToDisplay
 			} as RoomEvent<number>),
 			'text'
 		);
 
-		$clientUser.pointSelection = Number(value);
+		clientUser.value.pointSelection = Number(value);
 	}
 
-	$arePointsVisible = data.arePointsRevealed;
-	$remoteUsers = data.existingRoomUsers; // update state with the users that were already in the room before client joined
+	arePointsVisible.value = data.arePointsRevealed;
+	remoteUsers.value = data.existingRoomUsers; // update state with the users that were already in the room before client joined
 
-	let usersWithPointSelected = $derived($allUsers.filter((user) => user.pointSelection)); // filter out the falsy values
+	let usersWithPointSelected = $derived(getAllUsers().filter((user) => user.pointSelection)); // filter out the falsy values
 	let averagePoints =
 		$derived(usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) /
 		usersWithPointSelected.length); // with initial value to avoid when the array is empty
-	let roomPointsDisplayValue = $derived($arePointsVisible ? averagePoints : 'hidden');
+	let roomPointsDisplayValue = $derived(arePointsVisible.value ? averagePoints : 'hidden');
 
 	// group the users by their point selection, sort them from largest to smallest
-	let pointsTally = $derived([...Map.groupBy($allUsers, (user) => user.pointSelection)].sort((a, b) => {
+	let pointsTally = $derived([...Map.groupBy(getAllUsers(), (user) => user.pointSelection)].sort((a, b) => {
 		let [, valueA] = a;
 		let [, valueB] = b;
 		return valueB.length - valueA.length;
@@ -149,35 +154,35 @@
 <div class="h-screen w-screen bg-black flex flex-col justify-center items-center">
 	<!-- center center -->
 	<div
-		class="content h-full w-[25%] bg-black flex flex-col justify-center items-center space-y-[10px]"
+		class="content h-full w-[25%] flex flex-col justify-center items-center space-y-[10px]"
 	>
 		<!-- nav -->
 		<div class="w-full">
-			<div class="flex spacing-x-[10px] border-[1px] border-white border-solid">
+			<div class="flex spacing-x-[10px] border-[1px] border-main-light border-solid">
 				<input
-					bind:value={$clientUser.displayName}
+					bind:value={clientUser.value.displayName}
 					placeholder="Enter name..."
-					class="text-white bg-black h-[50px] p-[10px] flex-1"
+					class="text-white bg-main-dark h-[50px] p-[10px] flex-1"
 				/>
 				<button class="text-black bg-white p-[10px]">save</button>
 			</div>
 		</div>
 
 		<!-- results -->
-		<div class="w-full h-fit padd bg-black flex flex-col items-center justify-center">
+		<div class="w-full h-fit bg-main-dark flex flex-col items-center justify-center">
 			<!-- average -->
 			<div
-				class="w-full h-fit p-[30px] flex justify-center items-center text-3xl text-white border-white border-[1px] border-solid"
+				class="w-full h-fit p-[30px] flex justify-center items-center text-3xl text-white border-main-light border-[1px] border-solid"
 			>
 				{roomPointsDisplayValue}
 			</div>
 		</div>
 		
-		{#if $arePointsVisible}
+		{#if arePointsVisible.value}
 			<!-- tally -->
 			<div class="w-full h-fit grid grid-cols-2 gap-[10px]">
 				{#each pointsTally as [key, value]}
-					<div class="h-[50px] p-[10px] text-white bg-black border-white border-[1px] flex justify-between items-center">
+					<div class="h-[50px] p-[10px] text-white bg-main-dark border-main-light border-[1px] flex justify-between items-center">
 						{key}
 						<div class="">x{value.length}</div>
 					</div>
@@ -185,31 +190,30 @@
 			</div>
 		{/if}
 
-
 		<button
 			onclick={toggleArePointsVisible}
-			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
-			{arePointsVisible ? "hide" : "show"}
+			class="h-[50px] w-full bg-main-dark text-white border-main-light border-[1px]">
+			{arePointsVisible.value ? "hide" : "show"}
 		</button>
 
 		<button
 			onclick={resetRoomPoints}
-			class="h-[50px] w-full bg-black text-white border-white border-[1px]">
+			class="h-[50px] w-full bg-main-dark text-white border-main-light border-[1px]">
 			reset
 		</button>
 
 		<!-- point selection -->
-		<div class="point-selection w-full">
+		<div class="point-selection w-full bg-main-dark">
 			<PointSelector onPointSelection={updatePointSelection}></PointSelector>
 		</div>
 
 		<!-- user statuses -->
 		<div class="w-full grid grid-cols-2 gap-3">
 			<!-- current user should always appear at the front, user'displayName always be visible -->
-			<UserStatus pointsRevealed={true} roomUser={$clientUser}></UserStatus>
+			<UserStatus pointsRevealed={true} roomUser={clientUser.value}></UserStatus>
 			<!-- display all other users after current user -->
-			{#each $remoteUsers as user}
-				<UserStatus pointsRevealed={$arePointsVisible} roomUser={user}></UserStatus>
+			{#each remoteUsers.value as user}
+				<UserStatus pointsRevealed={arePointsVisible.value} roomUser={user}></UserStatus>
 			{/each}
 		</div>
 	</div>
