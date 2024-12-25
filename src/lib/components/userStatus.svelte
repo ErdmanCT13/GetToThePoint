@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RoomUser } from "$lib/models/roomUser";
+	import { arePointsVisible } from "$lib/stores/points.svelte";
 	import { Toggle } from "bits-ui";
 
 	interface Props {
@@ -18,14 +19,16 @@
  
 <Toggle.Root onPressedChange={onSelect} disabled={true} pressed={arePointsSelectedByUser && pointsRevealed} class="
 	flex
-	justify-between
-	p-[10px]
+	justify-between items-center
+	p-[10px] px-[20px]
 	h-[50px]
-	border-[1px]
+	rounded-full
+	border-[2px]
+	border-main-light
+	border-solid
 	text-white
 	bg-main-dark
-	data-[state=on]:border-main-light
-	data-[state=off]:border-main-dark"
+	data-[state=on]:bg-main-light"
 	>
 	<div>{roomUser.displayName}</div>
 	<div>{displayValue}</div>

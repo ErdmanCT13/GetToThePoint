@@ -14,7 +14,7 @@
 
 </script>
  
-<ToggleGroup.Root bind:value={pointsValueString.value} onValueChange={onPointSelection} type="single" class="grid gap-px grid-cols-5 bg-main-light border-main-light border-[1px] border-solid">
+<ToggleGroup.Root bind:value={pointsValueString.value} onValueChange={onPointSelection} type="single" class="grid gap-[10px] grid-cols-5 overflow-hidden">
 	<PointSelectorOption value=1>1</PointSelectorOption>
 	<PointSelectorOption value=2>2</PointSelectorOption>
 	<PointSelectorOption value=3>3</PointSelectorOption>

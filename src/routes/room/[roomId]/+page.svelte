@@ -6,6 +6,7 @@
 	import { browser } from '$app/environment';
 	import PointSelector from '$lib/components/pointSelector.svelte';
 	import UserStatus from '$lib/components/userStatus.svelte';
+	import { Separator } from 'bits-ui';
 	import { getAllUsers, remoteUsers } from '$lib/stores/users.svelte';
 	import { clientUser } from '$lib/stores/users.svelte';
 	import { Button } from 'bits-ui';
@@ -15,6 +16,7 @@
 	import { getUserIfCached } from '$lib/helpers/localUserCache';
 	import type { RoomUser } from '$lib/models/roomUser';
 	import { get } from 'svelte/store';
+	import { ConsoleLogWriter } from 'drizzle-orm';
 
 	interface Props {
 		data: PageData;
@@ -103,9 +105,12 @@
 		// reset all users points
 		clientUser.value.pointSelection = 0;
 		// reset the user input and hide points
-		arePointsVisible.value = false
-		pointsValueString.value = "0"
-		remoteUsers.value = remoteUsers.value.map<RoomUser>(remoteUser => ({...remoteUser, pointSelection: 0}))
+		arePointsVisible.value = false;
+		pointsValueString.value = '0';
+		remoteUsers.value = remoteUsers.value.map<RoomUser>((remoteUser) => ({
+			...remoteUser,
+			pointSelection: 0
+		}));
 	}
 
 	function updatePointSelection(value: string | undefined) {
@@ -133,18 +138,22 @@
 	arePointsVisible.value = data.arePointsRevealed;
 	remoteUsers.value = data.existingRoomUsers; // update state with the users that were already in the room before client joined
 
+
+
 	let usersWithPointSelected = $derived(getAllUsers().filter((user) => user.pointSelection)); // filter out the falsy values
-	let averagePoints =
-		$derived(usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) /
-		usersWithPointSelected.length); // with initial value to avoid when the array is empty
-	let roomPointsDisplayValue = $derived(arePointsVisible.value ? averagePoints : 'hidden');
+	let averagePoints = $derived(
+		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) / usersWithPointSelected.length
+	); // with initial value to avoid when the array is empty
+	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : "None");
 
 	// group the users by their point selection, sort them from largest to smallest
-	let pointsTally = $derived([...Map.groupBy(getAllUsers(), (user) => user.pointSelection)].sort((a, b) => {
-		let [, valueA] = a;
-		let [, valueB] = b;
-		return valueB.length - valueA.length;
-	}))
+	let pointsTally = $derived(
+		[...Map.groupBy(getAllUsers(), (user) => user.pointSelection)].sort((a, b) => {
+			let [, valueA] = a;
+			let [, valueB] = b;
+			return valueB.length - valueA.length;
+		})
+	);
 </script>
 
 <!-- this will be the starting point for next time. exposing the user id like this means we can update the db -->
@@ -152,60 +161,92 @@
 
 <!-- content -->
 <div class="h-screen w-screen bg-black flex flex-col justify-center items-center">
+
+	
 	<!-- center center -->
-	<div
-		class="content h-full w-[25%] flex flex-col justify-center items-center space-y-[10px]"
-	>
-		<!-- nav -->
-		<div class="w-full">
-			<div class="flex spacing-x-[10px] border-[1px] border-main-light border-solid">
-				<input
-					bind:value={clientUser.value.displayName}
-					placeholder="Enter name..."
-					class="text-white bg-main-dark h-[50px] p-[10px] flex-1"
-				/>
-				<button class="text-black bg-white p-[10px]">save</button>
-			</div>
+	<div class="content h-full w-[25%] flex flex-col justify-center items-center space-y-[20px]">
+
+		<div class="w-full flex space-x-[10px]">
+			<button
+				onclick={toggleArePointsVisible}
+				class="h-[50px] w-full px-[20px] bg-main-light hover:bg-white font-bold text-white hover:text-black border-main-light border-[2px] rounded-full flex justify-start items-center"
+			>
+				{arePointsVisible.value ? 'Hide' : 'Reveal'}
+			</button>
+
+			<button
+				onclick={resetRoomPoints}
+				class="h-[50px] w-full px-[20px] bg-main-light hover:bg-white text-white hover:text-black font-bold border-main-light border-[1px] rounded-full flex justify-start items-center"
+			>
+				Reset
+			</button>
 		</div>
 
-		<!-- results -->
-		<div class="w-full h-fit bg-main-dark flex flex-col items-center justify-center">
-			<!-- average -->
-			<div
-				class="w-full h-fit p-[30px] flex justify-center items-center text-3xl text-white border-main-light border-[1px] border-solid"
-			>
+		<Separator.Root
+			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
+		/>
+		
+		<!-- top content -->
+		<div class="flex flex-col space-y-[10px] w-full">
+			<!-- nav -->
+
+
+			<!-- <div class="w-full">
+				<div class="flex spacing-x-[10px] border-[1px] border-main-light border-solid">
+					<input
+						bind:value={clientUser.value.displayName}
+						placeholder="Enter name..."
+						class="text-white bg-main-dark h-[50px] p-[10px] flex-1"
+					/>
+					<button class="text-black bg-white p-[10px]">save</button>
+				</div>
+			</div> -->
+
+			<!-- results -->
+
+			<div class="
+				w-full h-fit
+				p-[30px]
+				flex 
+				justify-center
+				items-center text-3xl 
+				text-white
+				bg-main-dark
+				border-main-light
+				border-[2px]
+				rounded-[25px]
+				{arePointsVisible.value ? "" : "blur-lg"}
+				opacity-100">
 				{roomPointsDisplayValue}
 			</div>
+
+			{#if arePointsVisible.value}
+				<!-- tally -->
+				<div class="w-full h-fit grid grid-cols-2 gap-[10px]">
+					{#each pointsTally as [key, value]}
+						<div
+							class="h-[50px] px-[20px] py-[10px] text-white bg-main-dark border-main-light border-[2px] flex justify-between items-center rounded-full"
+						>
+							{key != 0 ? key : "None"}
+							<div class="">x{value.length}</div>
+						</div>
+					{/each}
+				</div>
+			{/if}
 		</div>
-		
-		{#if arePointsVisible.value}
-			<!-- tally -->
-			<div class="w-full h-fit grid grid-cols-2 gap-[10px]">
-				{#each pointsTally as [key, value]}
-					<div class="h-[50px] p-[10px] text-white bg-main-dark border-main-light border-[1px] flex justify-between items-center">
-						{key}
-						<div class="">x{value.length}</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
 
-		<button
-			onclick={toggleArePointsVisible}
-			class="h-[50px] w-full bg-main-dark text-white border-main-light border-[1px]">
-			{arePointsVisible.value ? "hide" : "show"}
-		</button>
-
-		<button
-			onclick={resetRoomPoints}
-			class="h-[50px] w-full bg-main-dark text-white border-main-light border-[1px]">
-			reset
-		</button>
+		<Separator.Root
+			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
+		/>
 
 		<!-- point selection -->
-		<div class="point-selection w-full bg-main-dark">
+		<div class="point-selection w-full">
 			<PointSelector onPointSelection={updatePointSelection}></PointSelector>
 		</div>
+
+		<Separator.Root
+			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[3px]"
+		/>
 
 		<!-- user statuses -->
 		<div class="w-full grid grid-cols-2 gap-3">
