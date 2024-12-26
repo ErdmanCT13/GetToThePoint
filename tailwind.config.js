@@ -10,7 +10,7 @@ export default {
         //   dark: '#061423',
         // },
         main: {
-          light: '#262626',
+          light: '#1a1a1a',
           DEFAULT: '#F8F32B',
           dark: '#0d0d0d',
         },

@@ -17,6 +17,7 @@
 	import type { RoomUser } from '$lib/models/roomUser';
 	import { get } from 'svelte/store';
 	import { ConsoleLogWriter } from 'drizzle-orm';
+	import { randomQuip } from '$lib/helpers/quips';
 
 	interface Props {
 		data: PageData;
@@ -138,14 +139,12 @@
 	arePointsVisible.value = data.arePointsRevealed;
 	remoteUsers.value = data.existingRoomUsers; // update state with the users that were already in the room before client joined
 
-
-
 	let usersWithPointSelected = $derived(getAllUsers().filter((user) => user.pointSelection)); // filter out the falsy values
 	let averagePoints = $derived(
 		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) / usersWithPointSelected.length
 	); // with initial value to avoid when the array is empty
-	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : "None");
-
+	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : null);
+	let cheekyQuip = $derived(arePointsVisible.value ? randomQuip() : null)
 	// group the users by their point selection, sort them from largest to smallest
 	let pointsTally = $derived(
 		[...Map.groupBy(getAllUsers(), (user) => user.pointSelection)].sort((a, b) => {
@@ -169,7 +168,15 @@
 		<div class="w-full flex space-x-[10px]">
 			<button
 				onclick={toggleArePointsVisible}
-				class="h-[50px] w-full px-[20px] bg-main-light hover:bg-white font-bold text-white hover:text-black border-main-light border-[2px] rounded-full flex justify-start items-center"
+				class="
+					h-[50px] w-full
+				 	px-[20px] 
+					font-bold
+					{arePointsVisible.value ? "text-black bg-[#F8F32B] hover:bg-main-dark hover:text-white" :"bg-main-light text-white hover:bg-main-dark hover:text-white"}
+					rounded-full 
+					flex 
+					justify-start 
+					items-center"
 			>
 				{arePointsVisible.value ? 'Hide' : 'Reveal'}
 			</button>
@@ -202,23 +209,45 @@
 				</div>
 			</div> -->
 
-			<!-- results -->
+			<!-- results --> 
+				<div class="
+					relative
+					flex
+					items-center
+					bg-[#777303]
+					rounded-[25px]
+					overflow-hidden
+					before:w-full
+					before:h-1/2
+					before:bg-[#F8F32B]
+					before:blur-xl
+					before:absolute before:animate-spin
+					{arePointsVisible.value ? "before:hidden": "before:block"}
+					">
+						<div class="
+						bg-clip-padding
+						w-full h-fit
+						p-[30px]
+						flex 
+						justify-center
+						items-center text-3xl 
+						text-black
+						font-bold
+						bg-[#F8F32B]
+						border-transparent
+						border-[7px]
+						rounded-[25px]
+						overflow-hidden
+						relative
+						opacity-100"
+						>
 
-			<div class="
-				w-full h-fit
-				p-[30px]
-				flex 
-				justify-center
-				items-center text-3xl 
-				text-white
-				bg-main-dark
-				border-main-light
-				border-[2px]
-				rounded-[25px]
-				{arePointsVisible.value ? "" : "blur-lg"}
-				opacity-100">
-				{roomPointsDisplayValue}
+						<span class="relative">				
+							{arePointsVisible.value ? roomPointsDisplayValue : randomQuip()}
+						</span>
+				</div>
 			</div>
+
 
 			{#if arePointsVisible.value}
 				<!-- tally -->

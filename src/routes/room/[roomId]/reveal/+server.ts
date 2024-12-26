@@ -15,9 +15,10 @@ export const PUT: RequestHandler = async ({ params, url }) => {
 	
 	//console.log(`Updating user ${userId} points: ${points}, in room ${roomId}`)
 	console.log("Revealing points for room: ", roomId)
+	console.log(value == "true", value)
 
 	// update the database entry for the room so anyone joining the room will immediately see the point average if the room has been revealed
-	db.update(roomsTable).set({ arePointsRevealed: Boolean(value) }).where(eq(roomsTable.id, params.roomId));
+	await db.update(roomsTable).set({ arePointsRevealed: value == "true" }).where(eq(roomsTable.id, roomId));
 	// now that all the db work is done, take the user to the new room with a redirect
 	return new Response();
 };
