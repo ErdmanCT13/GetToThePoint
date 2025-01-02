@@ -1,7 +1,7 @@
 import { redirect, error } from '@sveltejs/kit';
 import { createClient } from '@supabase/supabase-js';
 import type { Room } from '$lib/models/room';
-import type { RequestHandler } from './$types';
+import type { RequestHandler } from '../../[[roomId]]/reveal/$types';
 import type { RoomUser } from '$lib/models/roomUser';
 import { roomsTable, usersTable } from '$lib/database/schema';
 import { db } from '$lib/database/client.server';

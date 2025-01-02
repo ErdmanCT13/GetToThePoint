@@ -14,6 +14,11 @@ export default {
           DEFAULT: '#F8F32B',
           dark: '#0d0d0d',
         },
+        accent: {
+          light: '#F8F32B',
+          DEFAULT: '#F8F32B',
+          dark: '#777303',
+        },
       },
     },
   },

@@ -1,6 +1,6 @@
 <script lang="ts">
 	//import { ConsoleLogWriter } from 'drizzle-orm';
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import type { RoomEvent } from '$lib/models/roomEvent';
 	import { WebPubSubClient } from '@azure/web-pubsub-client';
 	import { browser } from '$app/environment';
@@ -17,16 +17,16 @@
 	import type { RoomUser } from '$lib/models/roomUser';
 	import { get } from 'svelte/store';
 	import { ConsoleLogWriter } from 'drizzle-orm';
-	import { randomQuip } from '$lib/helpers/quips';
+	import { randomHurryUpQuip, randomNoSelectionQuip } from '$lib/helpers/quips';
 
 	interface Props {
 		data: PageData;
 	}
 
-	let { data }: Props = $props();
+	let { data, form }: { data: PageData, form: ActionData } = $props();
 
 	let roomClient: WebPubSubClient;
-	let nameToDisplay: string = data.serverGeneratedDisplayName;
+	let nameToDisplay: string = data.userProvidedDisplayName
 
 	if (browser) {
 		// todo: implement display name save and broadcast
@@ -115,6 +115,7 @@
 	}
 
 	function updatePointSelection(value: string | undefined) {
+		console.log(value)
 		const newValue: number = value ? Number(value) : 0;
 		fetch(`/room/${data.roomId}/points?value=${newValue}&userId=${data.newRoomUserId}`, {
 			method: 'PUT'
@@ -133,7 +134,7 @@
 			'text'
 		);
 
-		clientUser.value.pointSelection = Number(value);
+		clientUser.value.pointSelection = Number(newValue);
 	}
 
 	arePointsVisible.value = data.arePointsRevealed;
@@ -143,8 +144,8 @@
 	let averagePoints = $derived(
 		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) / usersWithPointSelected.length
 	); // with initial value to avoid when the array is empty
-	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : null);
-	let cheekyQuip = $derived(arePointsVisible.value ? randomQuip() : null)
+	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : randomNoSelectionQuip());
+	//let cheekyQuip = $derived(arePointsVisible.value ? randomHurryUpQuip() : null)
 	// group the users by their point selection, sort them from largest to smallest
 	let pointsTally = $derived(
 		[...Map.groupBy(getAllUsers(), (user) => user.pointSelection)].sort((a, b) => {
@@ -190,7 +191,7 @@
 		</div>
 
 		<Separator.Root
-			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
+			class="shrink-0 bg-main-light data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
 		/>
 		
 		<!-- top content -->
@@ -213,15 +214,16 @@
 				<div class="
 					relative
 					flex
-					items-center
+					items-center justify-center
 					bg-[#777303]
 					rounded-[25px]
 					overflow-hidden
-					before:w-full
-					before:h-1/2
-					before:bg-[#F8F32B]
-					before:blur-xl
-					before:absolute before:animate-spin
+					before:bg-[conic-gradient(var(--tw-gradient-stops))] before:from-[#DAD607] before:via-main-light before:to-[#DAD607]
+					before:w-[4000px]
+					before:h-[2000px]
+					before:blur-none
+					before:absolute 
+					before:animate-[spin_2s_linear_infinite]
 					{arePointsVisible.value ? "before:hidden": "before:block"}
 					">
 						<div class="
@@ -243,7 +245,7 @@
 						>
 
 						<span class="relative">				
-							{arePointsVisible.value ? roomPointsDisplayValue : randomQuip()}
+							{arePointsVisible.value ? roomPointsDisplayValue : randomHurryUpQuip()}
 						</span>
 				</div>
 			</div>

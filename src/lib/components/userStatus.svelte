@@ -20,7 +20,7 @@
 <Toggle.Root onPressedChange={onSelect} disabled={true} pressed={arePointsSelectedByUser && pointsRevealed} class="
 	flex
 	justify-between items-center
-	p-[10px] px-[20px]
+	p-[10px]
 	h-[50px]
 	rounded-full
 	border-[2px]
@@ -31,5 +31,5 @@
 	data-[state=on]:bg-main-light"
 	>
 	<div>{roomUser.displayName}</div>
-	<div>{displayValue}</div>
+	<div class="px-[10px] h-full bg-main-light rounded-full flex justify-center items-center">{displayValue}</div>
 </Toggle.Root>

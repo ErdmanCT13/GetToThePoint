@@ -7,25 +7,33 @@ import { db } from '$lib/database/client.server';
 import { roomsTable, usersTable } from '$lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { pickRandomEmojiSequence } from '$lib/helpers/randomEmoji';
-//import { db} from '$lib/database/client';
 
 // in this file, we should use the provided room id to insert a new user in that room, and then notify the other clients of this user joining
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 
     const newRoomUserId: string = crypto.randomUUID();
 	const roomId: string = params.roomId;
+	const userProvidedDisplayName: string | null = url.searchParams.get("username");
 	const serverGeneratedDisplayName = pickRandomEmojiSequence(1);
+
+	console.log("USER:", userProvidedDisplayName)
+	// users shouldn't be able to 
+	if(!userProvidedDisplayName){
+		error(500, "Cannot join room without a username")
+	}
 
 	const user: RoomUser = {
 		id: newRoomUserId,
 		roomId,
 		pointSelection: 0,
-		displayName: serverGeneratedDisplayName
+		displayName: userProvidedDisplayName as string
 	}
 
 	const existingRoomUsers: RoomUser[] = await db.select().from(usersTable).where(eq(usersTable.roomId, roomId)); // before inserting a new user, load the old ones to display
 	const room: Room = (await db.select().from(roomsTable).where(eq(roomsTable.id, roomId)))[0];// there shold only ever be one room with this id, if not we have bigger issues
+
+	//const room: Room = (await db.select().from(roomsTable).where(eq(roomsTable.id, roomId)))[0];// there shold only ever be one room with this id, if not we have bigger issues
 	const arePointsRevealed = room.arePointsRevealed;
 	await db.insert(usersTable).values(user);
 	
@@ -39,5 +47,5 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const clientAccessUri = clientAccessToken.url;
 
-    return {roomId, newRoomUserId, serverGeneratedDisplayName, clientAccessUri, existingRoomUsers, arePointsRevealed};
+    return {roomId, newRoomUserId, serverGeneratedDisplayName, userProvidedDisplayName, clientAccessUri, existingRoomUsers, arePointsRevealed};
 };

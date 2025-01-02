@@ -1,10 +1,17 @@
-export function randomQuip(){
-    const randomIndex = Math.floor(quips.length * Math.random());
-    //console.log(randomIndex)
-    return quips[randomIndex];
+export function randomHurryUpQuip(){
+    return randomItem(hurryUpQuips)
 }
 
-export const quips = [
+export function randomNoSelectionQuip(){
+    return randomItem(noSelectionsQuips)
+}
+
+function randomItem(array: any){
+    const randomIndex = Math.floor(array.length * Math.random());
+    return array[randomIndex];
+}
+
+export const hurryUpQuips = [
     "Crichets...",
     "Can you guys hurry up?",
     "I knit a sweater while you guys were talking",
@@ -109,4 +116,104 @@ export const quips = [
     "At this rate, I might need an update before you’re done.",
     "If hesitation were a skill, you’d be a black belt.",
     "You know what they say: the first decision is usually the best one. Try it."
+  ]
+
+    const noSelectionsQuips = [
+    "Hello? Is anybody out there? Or is this just a meeting mirage?",
+    "The cards are feeling lonely... pick something already!",
+    "It’s like waiting for a plot twist that never comes.",
+    "Silence speaks volumes, but not about story points.",
+    "You miss 100% of the points you don’t pick.",
+    "No rush, it’s not like the sprint is ending soon... oh wait.",
+    "Procrastination: the ultimate poker strategy.",
+    "Everyone’s still calculating Fibonacci, right?",
+    "If pointing poker were a staring contest, you’d all win.",
+    "At this rate, we’ll release the next update in 2035.",
+    "Did someone say ‘unanimous indecision’?!",
+    "The suspense is killing me... or is that just the coffee talking?",
+    "Fun fact: Story points don’t assign themselves.",
+    "Plot twist: the cards are waiting on *you*.",
+    "Teamwork makes the dream work—anytime now!",
+    "No votes? Bold strategy. Let’s see if it pays off.",
+    "Who needs estimates when you’ve got vibes, right?",
+    "This is fine. We’ll just wing it in production.",
+    "Friendly reminder: Time’s a-tickin’, and deadlines don’t wait.",
+    "If hesitation were a story point, this would be a 13.",
+    "Are you all secretly playing ‘the quiet game’?",
+    "We’re not here to build suspense, folks.",
+    "Can someone break the ice before we all freeze?",
+    "It’s poker, not a staring contest. Make a move!",
+    "Imagine how fast this sprint would go if we all picked.",
+    "Raise your hand if you forgot how this works.",
+    "Your cards are safe to touch. Promise.",
+    "Shhh... the story points are meditating.",
+    "Waiting for input... and waiting... and waiting...",
+    "Is this an Agile meeting or a mime performance?",
+    "Any second now, the estimates will estimate themselves.",
+    "This isn’t a trick question, you know.",
+    "Blink twice if you’re confused.",
+    "Do I need to bribe you with coffee?",
+    "Story points called. They’d like to be chosen, please.",
+    "Let’s not turn this into a Netflix binge-worthy wait.",
+    "If thinking hard were a story point, you’d all be 21.",
+    "Should we start the meeting over from the top?",
+    "Is this the dramatic pause before the big reveal?",
+    "You’re making this more mysterious than it needs to be.",
+    "Pick a card, any card! No magic involved.",
+    "The cards are digital, but your hesitation feels real.",
+    "There’s no wrong answer... except not picking one.",
+    "Can we wrap this up before AI estimates the sprint for us?",
+    "Every second of silence adds a story point.",
+    "Should we vote on voting?",
+    "The universe isn’t going to align those cards for you.",
+    "It’s poker, not rocket science. Tap a number.",
+    "This app does more than just sit there, you know.",
+    "Story points: still waiting to be adopted.",
+    "Is this what Agile purgatory feels like?",
+    "Breaking news: no one has selected anything yet.",
+    "Fun fact: This meeting could have been an email.",
+    "Has the concept of numbers suddenly become confusing?",
+    "The team that doesn’t point together... sits forever.",
+    "The cards are patient, but I’m not.",
+    "No pressure, but the clock is judging you.",
+    "I didn’t realize ‘indecision’ was part of the backlog.",
+    "The user stories are writing themselves in the background.",
+    "Fun game: Guess how long this will take without estimates.",
+    "Are we silently protesting the use of story points?",
+    "This isn’t Jeopardy; you don’t need to buzz in.",
+    "The sprint ends when you decide it ends.",
+    "Imagine how productive we’d be if we all picked a number.",
+    "Quick question: Is this a dramatic pause or a freeze frame?",
+    "We could have released the feature by now.",
+    "You’re making Agile feel like a glacier.",
+    "The cards are digital, but this wait feels analog.",
+    "Don’t overthink it—it’s just a number.",
+    "If you don’t pick soon, I’ll assign 99 to everything.",
+    "The backlog is watching you. Judging silently.",
+    "Fun fact: Sprint planning doesn’t have a halftime show.",
+    "Are we waiting for divine intervention to assign points?",
+    "Please select something before my battery dies.",
+    "You’ve entered the zone of infinite indecision.",
+    "If we had a dollar for every second of silence, we’d fund the sprint.",
+    "Tap a number! It’s easier than texting.",
+    "Fun fact: Hesitation isn’t an Agile value.",
+    "The cards are sad, and it’s your fault.",
+    "Should we play actual poker while we wait?",
+    "Your cards are waiting. Your PM is too.",
+    "At this rate, we’ll be estimating during the retrospective.",
+    "Did someone forget we’re in a meeting?",
+    "I didn’t realize this was a meditative session.",
+    "Even the Fibonacci sequence didn’t take this long.",
+    "You know, Agile is supposed to be fast, right?",
+    "Is this part of the sprint or the sprint planning afterparty?",
+    "I’ll start assigning random numbers soon. Don’t test me.",
+    "The cards won’t bite. Probably.",
+    "Should I play elevator music while you decide?",
+    "We’re not launching rockets; just pick a number.",
+    "The cards can’t do this alone.",
+    "If this were a race, we’d still be at the starting line.",
+    "Can we finish before my coffee gets cold?",
+    "You’re redefining the art of suspense.",
+    "It’s story points, not quantum physics.",
+    "Someone throw the first card so we can all move on."
   ]
