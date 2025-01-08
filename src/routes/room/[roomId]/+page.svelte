@@ -4,6 +4,7 @@
 	import type { RoomEvent } from '$lib/models/roomEvent';
 	import { WebPubSubClient } from '@azure/web-pubsub-client';
 	import { browser } from '$app/environment';
+	import LobbyOverlay from '$lib/components/lobbyOverlay.svelte';
 	import PointSelector from '$lib/components/pointSelector.svelte';
 	import UserStatus from '$lib/components/userStatus.svelte';
 	import { Separator } from 'bits-ui';
@@ -15,18 +16,16 @@
 	import { SetupRoomListener as RoomListenerSetup } from '$lib/pubSub/pubSubClient';
 	import { getUserIfCached } from '$lib/helpers/localUserCache';
 	import type { RoomUser } from '$lib/models/roomUser';
-	import { get } from 'svelte/store';
-	import { ConsoleLogWriter } from 'drizzle-orm';
 	import { randomHurryUpQuip, randomNoSelectionQuip } from '$lib/helpers/quips';
 
 	interface Props {
 		data: PageData;
 	}
 
-	let { data, form }: { data: PageData, form: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	let roomClient: WebPubSubClient;
-	let nameToDisplay: string = data.userProvidedDisplayName
+	let nameToDisplay: string;
 
 	if (browser) {
 		// todo: implement display name save and broadcast
@@ -115,7 +114,7 @@
 	}
 
 	function updatePointSelection(value: string | undefined) {
-		console.log(value)
+		console.log(value);
 		const newValue: number = value ? Number(value) : 0;
 		fetch(`/room/${data.roomId}/points?value=${newValue}&userId=${data.newRoomUserId}`, {
 			method: 'PUT'
@@ -142,9 +141,12 @@
 
 	let usersWithPointSelected = $derived(getAllUsers().filter((user) => user.pointSelection)); // filter out the falsy values
 	let averagePoints = $derived(
-		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) / usersWithPointSelected.length
+		usersWithPointSelected.map((user) => user.pointSelection).reduce(add, 0) /
+			usersWithPointSelected.length
 	); // with initial value to avoid when the array is empty
-	let roomPointsDisplayValue = $derived(usersWithPointSelected.length > 0 ? averagePoints : randomNoSelectionQuip());
+	let roomPointsDisplayValue = $derived(
+		usersWithPointSelected.length > 0 ? averagePoints : randomNoSelectionQuip()
+	);
 	//let cheekyQuip = $derived(arePointsVisible.value ? randomHurryUpQuip() : null)
 	// group the users by their point selection, sort them from largest to smallest
 	let pointsTally = $derived(
@@ -159,59 +161,60 @@
 <!-- this will be the starting point for next time. exposing the user id like this means we can update the db -->
 <!-- <div>{data.newRoomUserId} ///// {data.roomId} ////// {data.clientAccessUri}</div> -->
 
-<!-- content -->
-<div class="h-screen w-screen bg-black flex flex-col justify-center items-center">
-
-	
-	<!-- center center -->
-	<div class="content h-full w-[25%] flex flex-col justify-center items-center space-y-[20px]">
-
-		<div class="w-full flex space-x-[10px]">
-			<button
-				onclick={toggleArePointsVisible}
-				class="
-					h-[50px] w-full
-				 	px-[20px] 
-					font-bold
-					{arePointsVisible.value ? "text-black bg-[#F8F32B] hover:bg-main-dark hover:text-white" :"bg-main-light text-white hover:bg-main-dark hover:text-white"}
-					rounded-full 
-					flex 
-					justify-start 
-					items-center"
-			>
-				{arePointsVisible.value ? 'Hide' : 'Reveal'}
-			</button>
-
-			<button
-				onclick={resetRoomPoints}
-				class="h-[50px] w-full px-[20px] bg-main-light hover:bg-white text-white hover:text-black font-bold border-main-light border-[1px] rounded-full flex justify-start items-center"
-			>
-				Reset
-			</button>
-		</div>
-
-		<Separator.Root
-			class="shrink-0 bg-main-light data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
-		/>
-		
-		<!-- top content -->
-		<div class="flex flex-col space-y-[10px] w-full">
-			<!-- nav -->
-
-
-			<!-- <div class="w-full">
-				<div class="flex spacing-x-[10px] border-[1px] border-main-light border-solid">
+<!-- if the user has entered a name, display the room to them -->
+{#if nameToDisplay}
+	<!-- content -->
+	<div class="h-screen w-screen bg-black flex flex-col justify-center items-center">
+		<!-- center -->
+		<div class="h-full w-[25%] flex flex-col justify-center items-center space-y-[20px]">
+			<!-- name input -->
+			<div class="w-full flex-col space-y-[10px]">
+				<div class="w-full h-[50px] flex space-x-[10px]">
 					<input
 						bind:value={clientUser.value.displayName}
 						placeholder="Enter name..."
-						class="text-white bg-main-dark h-[50px] p-[10px] flex-1"
+						class="text-white h-full px-[20px] flex-1 bg-main-dark border-main-light border-[3px] rounded-full box-border outline-none"
 					/>
-					<button class="text-black bg-white p-[10px]">save</button>
+					<button class="text-white font-bold bg-main-light rounded-full px-[20px]">Save</button>
 				</div>
-			</div> -->
 
-			<!-- results --> 
-				<div class="
+				<div class="w-full flex space-x-[10px]">
+					<button
+						onclick={toggleArePointsVisible}
+						class="
+						h-[50px] w-full
+						 px-[20px]
+						font-bold
+						{arePointsVisible.value
+							? 'text-black bg-[#F8F32B] hover:bg-main-dark hover:text-white'
+							: 'bg-main-light text-white hover:bg-main-dark hover:text-white'}
+						rounded-full
+						flex
+						justify-start
+						items-center"
+					>
+						{arePointsVisible.value ? 'Hide' : 'Reveal'}
+					</button>
+
+					<button
+						onclick={resetRoomPoints}
+						class="h-[50px] w-full px-[20px] bg-main-light hover:bg-white text-white hover:text-black font-bold border-main-light border-[1px] rounded-full flex justify-start items-center"
+					>
+						Reset
+					</button>
+				</div>
+			</div>
+
+			<Separator.Root
+				class="shrink-0 bg-main-light data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[3px]"
+			/>
+
+			<!-- top content -->
+			<div class="flex flex-col space-y-[10px] w-full">
+				<!-- nav -->
+				<!-- results -->
+				<div
+					class="
 					relative
 					flex
 					items-center justify-center
@@ -222,17 +225,19 @@
 					before:w-[4000px]
 					before:h-[2000px]
 					before:blur-none
-					before:absolute 
+					before:absolute
 					before:animate-[spin_2s_linear_infinite]
-					{arePointsVisible.value ? "before:hidden": "before:block"}
-					">
-						<div class="
+					{arePointsVisible.value ? 'before:hidden' : 'before:block'}
+					"
+				>
+					<div
+						class="
 						bg-clip-padding
 						w-full h-fit
 						p-[30px]
-						flex 
+						flex
 						justify-center
-						items-center text-3xl 
+						items-center text-3xl
 						text-black
 						font-bold
 						bg-[#F8F32B]
@@ -242,51 +247,52 @@
 						overflow-hidden
 						relative
 						opacity-100"
-						>
-
-						<span class="relative">				
+					>
+						<span class="relative">
 							{arePointsVisible.value ? roomPointsDisplayValue : randomHurryUpQuip()}
 						</span>
+					</div>
 				</div>
+
+				{#if arePointsVisible.value}
+					<!-- tally -->
+					<div class="w-full h-fit grid grid-cols-2 gap-[10px]">
+						{#each pointsTally as [key, value]}
+							<div
+								class="h-[50px] px-[20px] py-[10px] text-white bg-main-dark border-main-light border-[2px] flex justify-between items-center rounded-full"
+							>
+								{key != 0 ? key : 'None'}
+								<div class="">x{value.length}</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 
+			<Separator.Root
+				class="shrink-0 bg-main-light data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[3px]"
+			/>
 
-			{#if arePointsVisible.value}
-				<!-- tally -->
-				<div class="w-full h-fit grid grid-cols-2 gap-[10px]">
-					{#each pointsTally as [key, value]}
-						<div
-							class="h-[50px] px-[20px] py-[10px] text-white bg-main-dark border-main-light border-[2px] flex justify-between items-center rounded-full"
-						>
-							{key != 0 ? key : "None"}
-							<div class="">x{value.length}</div>
-						</div>
-					{/each}
-				</div>
-			{/if}
-		</div>
+			<!-- point selection -->
+			<div class="point-selection w-full">
+				<PointSelector onPointSelection={updatePointSelection}></PointSelector>
+			</div>
 
-		<Separator.Root
-			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[2px]"
-		/>
+			<Separator.Root
+				class="shrink-0 bg-main-light data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[3px]"
+			/>
 
-		<!-- point selection -->
-		<div class="point-selection w-full">
-			<PointSelector onPointSelection={updatePointSelection}></PointSelector>
-		</div>
-
-		<Separator.Root
-			class="shrink-0 bg-main-dark data-[orientation=horizontal]:h-px data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-[3px]"
-		/>
-
-		<!-- user statuses -->
-		<div class="w-full grid grid-cols-2 gap-3">
-			<!-- current user should always appear at the front, user'displayName always be visible -->
-			<UserStatus pointsRevealed={true} roomUser={clientUser.value}></UserStatus>
-			<!-- display all other users after current user -->
-			{#each remoteUsers.value as user}
-				<UserStatus pointsRevealed={arePointsVisible.value} roomUser={user}></UserStatus>
-			{/each}
+			<!-- user statuses -->
+			<div class="w-full grid grid-cols-2 gap-3">
+				<!-- current user should always appear at the front, user'displayName always be visible -->
+				<UserStatus pointsRevealed={true} roomUser={clientUser.value}></UserStatus>
+				<!-- display all other users after current user -->
+				{#each remoteUsers.value as user}
+					<UserStatus pointsRevealed={arePointsVisible.value} roomUser={user}></UserStatus>
+				{/each}
+			</div>
 		</div>
 	</div>
-</div>
+{:else}
+	<LobbyOverlay></LobbyOverlay>
+{/if}

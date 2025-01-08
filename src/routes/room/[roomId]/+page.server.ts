@@ -19,15 +19,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	console.log("USER:", userProvidedDisplayName)
 	// users shouldn't be able to 
-	if(!userProvidedDisplayName){
-		error(500, "Cannot join room without a username")
-	}
+	// if(!userProvidedDisplayName){
+	// 	error(500, "Cannot join room without a username")
+	// }
 
 	const user: RoomUser = {
 		id: newRoomUserId,
 		roomId,
 		pointSelection: 0,
-		displayName: userProvidedDisplayName as string
+		displayName: serverGeneratedDisplayName as string
 	}
 
 	const existingRoomUsers: RoomUser[] = await db.select().from(usersTable).where(eq(usersTable.roomId, roomId)); // before inserting a new user, load the old ones to display
