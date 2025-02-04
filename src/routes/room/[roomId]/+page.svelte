@@ -113,6 +113,29 @@
 		}));
 	}
 
+	function updateUsername() {
+		let newDisplayName: string = clientUser.value.displayName // grab the new name from state
+
+		console.log(newDisplayName)
+		fetch(`/room/${data.roomId}/username?username=${newDisplayName}&userid=${data.newRoomUserId}`, {
+			// send a request to the server to update the db
+			method: 'PUT'
+		});
+
+		roomClient.sendToGroup(
+			data.roomId,
+			JSON.stringify({
+				time: Date.now().toString(),
+				roomEvent: 'update_username',
+				userId: data.newRoomUserId,
+				roomId: data.roomId,
+				userDisplayName: newDisplayName,
+				value: newDisplayName
+			} as RoomEvent<string>),
+			'text'
+		);
+	}
+
 	function updatePointSelection(value: string | undefined) {
 		console.log(value);
 		const newValue: number = value ? Number(value) : 0;
@@ -175,7 +198,7 @@
 						placeholder="Enter name..."
 						class="text-white h-full px-[20px] flex-1 bg-main-dark border-main-light border-[3px] rounded-full box-border outline-none"
 					/>
-					<button class="text-white font-bold bg-main-light rounded-full px-[20px]">Save</button>
+					<button onclick={updateUsername} class="text-white font-bold bg-main-light rounded-full px-[20px]">Save</button>
 				</div>
 
 				<div class="w-full flex space-x-[10px]">

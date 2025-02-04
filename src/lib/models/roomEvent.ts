@@ -1,4 +1,4 @@
-type RoomEventName = "join" | "leave" | "reveal" | "reset" | "point"
+type RoomEventName = "join" | "leave" | "reveal" | "reset" | "point" | "update_username"
 
 type RoomEvent<TValue =  null | undefined> = {
     time: string;

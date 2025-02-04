@@ -10,15 +10,11 @@ import serviceClient from '$lib/pubSub/pubSubServiceClient';
 
 export const PUT: RequestHandler = async ({ params, url }) => {
 
-	const value: string = url.searchParams.get('value') as string;
+	const userId: string = url.searchParams.get("userid") as string;
+	const username: string = url.searchParams.get("username") as string;
 	const roomId: string = params.roomId;
 	
-	//console.log(`Updating user ${userId} points: ${points}, in room ${roomId}`)
-	console.log("Revealing points for room: ", roomId)
-	console.log(value == "true", value)
-
-	// update the database entry for the room so anyone joining the room will immediately see the point average if the room has been revealed
-	await db.update(roomsTable).set({ arePointsRevealed: value == "true" }).where(eq(roomsTable.id, roomId));
-	// now that all the db work is done, take the user to the new room with a redirect
+	console.log(`Updating user ${userId} username: ${username}, in room ${roomId}`)
+	await db.update(usersTable).set({ displayName: username}).where(eq(usersTable.id, userId))
 	return new Response();
 };

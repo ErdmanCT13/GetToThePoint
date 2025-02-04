@@ -1,5 +1,5 @@
 import type { Room } from '$lib/models/room';
-import type { RequestHandler } from '../../[[roomId]]/points/$types';
+import type { RequestHandler } from './$types';
 import { redirect, error } from '@sveltejs/kit';
 import { createClient } from '@supabase/supabase-js';
 import type { RoomUser } from '$lib/models/roomUser';

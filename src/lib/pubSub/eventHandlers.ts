@@ -21,6 +21,8 @@ export function HandleRoomMessage(event: RoomEvent<any>): void { // TODO: work a
         case 'point': // user sets points
             HandleRoomPoint(event);
             break;
+        case 'update_username':
+            HandleRoomUpdateUsername(event);
     }
 }
 
@@ -60,6 +62,7 @@ export function HandleRoomPoint(event: RoomEvent<number>): void {
     remoteUsers.value = updateUserPoints(remoteUsers.value, event.userId, Number(event.value));
 }
 
+// TODO factor out most of this code into a separate method
 function updateUserPoints(users: RoomUser[], userId: string,  newPoints: number){
     const userIndex: number = users.findIndex(user => user.id == userId); // find out which index this user is at
     if(userIndex == -1){ throw new Error("unable to update user points, user could not be found in remote users")}; // we didn't find a user with this id, something isn't right
@@ -68,6 +71,23 @@ function updateUserPoints(users: RoomUser[], userId: string,  newPoints: number)
     return replaceRoomUser(users, userIndex, updatedUser)
 }
 
+function HandleRoomUpdateUsername(event: RoomEvent<string>){
+    updateUserDisplayName(remoteUsers.value, event.userId, event.value)
+}
+
+// TODO factor out most of this code into a separate method
+function updateUserDisplayName(users: RoomUser[], userId: string, newDisplayName: string){
+    console.log(newDisplayName, userId)
+    const userIndex: number = users.findIndex(user => user.id == userId); // find out which index this user is at
+    if(userIndex == -1){ throw new Error("unable to update user points, user could not be found in remote users")}; // we didn't find a user with this id, something isn't right
+    //const updatedUser = {...users[userIndex], displayName: newDisplayName} // copy the old user into a new reference and update the points
+    
+    // TODO why is replaceRoomuser not working here but working in updateUserPoints above? the two functions are nearly identical in what they do.
+    users[userIndex].displayName = newDisplayName
+    //replaceRoomUser(users, userIndex, updatedUser)
+}
+
 function replaceRoomUser(users: RoomUser[], userIndex: number, newUser: RoomUser){
+    console.log(newUser, `index: ${userIndex}`, users)
     return users.toSpliced(userIndex, 1, newUser);
 }
